@@ -42,10 +42,10 @@ class dataformfield_poodll_renderer extends dataformfield_renderer {
      * 
      */
     protected function replacements(array $tags = null, $entry = null, array $options = null) {
+
         $field = $this->_field;
         $fieldname = $field->name();
         $edit = !empty($options['edit']) ? $options['edit'] : false;
-
         $replacements = array();
 
         // rules support
@@ -53,6 +53,7 @@ class dataformfield_poodll_renderer extends dataformfield_renderer {
 
         foreach ($tags as $tag => $cleantag) {
             if ($edit) {
+            	
                 if ($cleantag == "[[$fieldname]]") {
                     $required = $this->is_required($tag);
                     $replacements[$tag] = array('', array(array($this,'display_edit'), array($entry, array('required' => $required))));
@@ -106,7 +107,6 @@ class dataformfield_poodll_renderer extends dataformfield_renderer {
      *
      */
     public function display_browse($entry, $params = null, $hidden = false) {
-
         $field = $this->_field;
         $fieldid = $field->id();
         $entryid = $entry->id;
@@ -155,7 +155,6 @@ class dataformfield_poodll_renderer extends dataformfield_renderer {
      */
     public function display_edit(&$mform, $entry, array $options = null) {
         global $USER, $PAGE;
-
         $field = $this->_field;
         $fieldid = $field->id();
 
@@ -184,7 +183,7 @@ class dataformfield_poodll_renderer extends dataformfield_renderer {
 		$mform->setType($fieldname . DF_FILENAMECONTROL, PARAM_TEXT); 
 		$mform->setType("{$fieldname}_" . DF_DRAFTIDCONTROL, PARAM_TEXT); 
 		$updatecontrol=$fieldname . DF_FILENAMECONTROL;
-		
+		error_log("got here 2");
 		 switch ($field->get(DF_FIELD_RECTYPE)){
         	case DF_REPLYVOICE:
         		$recstring .= fetchAudioRecorderForSubmission('auto','ignore',$updatecontrol,$usercontextid,"user","draft",$draftitemid);
@@ -243,16 +242,16 @@ class dataformfield_poodll_renderer extends dataformfield_renderer {
         		break;
 
 		}
-
+		error_log("got here 3");
 		$mform->addElement('static', 'description', '',$recstring);
     }
+
 
     /**
      * 
      */
     protected function display_file($file, $path, $altname, $params = null) {
         global $CFG, $OUTPUT;
-
 		$field = $this->_field;
         $filename = $file->get_filename();
         $displayname = $altname ? $altname : $filename;
@@ -297,4 +296,41 @@ class dataformfield_poodll_renderer extends dataformfield_renderer {
 			return "";
 		}
     }
+
+	
+		
+  
+    public function pluginfile_patterns() {
+        return array("[[{$this->_field->name()}]]");
+    }
+	
+	   /**
+     * Array of patterns this field supports 
+     */
+    protected function patterns() {
+        $fieldname = $this->_field->name();
+
+        $patterns = parent::patterns();
+        $patterns["[[$fieldname]]"] = array(true);
+        $patterns["[[$fieldname:url]]"] = array(false);
+        $patterns["[[$fieldname:alt]]"] = array(true);
+        $patterns["[[$fieldname:size]]"] = array(false);
+        $patterns["[[$fieldname:content]]"] = array(false);
+        $patterns["[[$fieldname:download]]"] = array(false);
+        $patterns["[[$fieldname:downloadcount]]"] = array(false);
+
+        return $patterns; 
+    }
+    
+    /**
+     * Array of patterns this field supports
+     */
+    protected function supports_rules() {
+        return array(
+            self::RULE_REQUIRED
+        );
+    }
+	
+	
+	
 }
