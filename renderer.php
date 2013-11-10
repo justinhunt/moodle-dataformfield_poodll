@@ -297,4 +297,36 @@ class dataformfield_poodll_renderer extends dataformfield_renderer {
 			return "";
 		}
     }
+    
+      
+     public function pluginfile_patterns() {
+         return array("[[{$this->_field->name()}]]");
+     }
+   
+      /**
+      * Array of patterns this field supports 
+      */
+     protected function patterns() {
+         $fieldname = $this->_field->name();
+ 
+         $patterns = parent::patterns();
+         $patterns["[[$fieldname]]"] = array(true);
+         $patterns["[[$fieldname:url]]"] = array(false);
+         $patterns["[[$fieldname:alt]]"] = array(true);
+        $patterns["[[$fieldname:size]]"] = array(false);
+         $patterns["[[$fieldname:content]]"] = array(false);
+         $patterns["[[$fieldname:download]]"] = array(false);
+         $patterns["[[$fieldname:downloadcount]]"] = array(false);
+ 
+         return $patterns; 
+     }
+     
+     /**
+      * Array of patterns this field supports
+      */
+     protected function supports_rules() {
+         return array(
+             self::RULE_REQUIRED
+         );
+     }
 }

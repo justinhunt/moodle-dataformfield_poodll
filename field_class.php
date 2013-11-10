@@ -89,6 +89,12 @@ class dataformfield_poodll extends dataformfield_file {
             $options = array();
             $contextid = $this->df->context->id;
             file_save_draft_area_files($filemanager, $contextid, DF_POODLL_COMPONENT, DF_POODLL_FILEAREA, $contentid, $options);
+            
+            $this->update_content_files($contentid);
+
+        // user cleared files from the field
+        } else if (!empty($contentid)) {
+            $this->delete_content($entryid);
         }
         return true;
     }
