@@ -208,8 +208,7 @@ class dataformfield_poodll_renderer extends dataformfield_renderer {
 					case "600x800": $width=600;$height=800;break;
 					case "800x600": $width=800;$height=600;break;
 				}
-				$width=$width + 205;
-				$height=$height + 20;
+
 				
 				//Get Backimage, if we have one
 				// get file system handle for fetching url to submitted media prompt (if there is one) 

@@ -23,9 +23,9 @@
 
 defined('MOODLE_INTERNAL') or die;
 
-$plugin->version   = 2013102400;
+$plugin->version   = 2013111600;
 $plugin->requires  = 2010112400;
 $plugin->component = 'dataformfield_poodll';
 $plugin->maturity  = MATURITY_STABLE;
-$plugin->release   = '1.0 (Build 2013102400)';
+$plugin->release   = '1.0 (Build 2013111600)';
 $plugin->dependencies = array('filter_poodll' => 2012120400);
