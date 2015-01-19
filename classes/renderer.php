@@ -173,12 +173,17 @@ class dataformfield_poodll_renderer extends mod_dataform\pluginbase\dataformfiel
 		$recstring="";
 		
 		//Set the control that will get notified about the recorded file's name
-		$mform->addElement('hidden', $fieldname . DF_FILENAMECONTROL, '',array('id' => $fieldname . DF_FILENAMECONTROL));
-		$mform->addElement('hidden', "{$fieldname}_" . DF_DRAFTIDCONTROL, $draftitemid);
-		$mform->setType($fieldname . DF_FILENAMECONTROL, PARAM_TEXT); 
-		$mform->setType("{$fieldname}_" . DF_DRAFTIDCONTROL, PARAM_TEXT); 
 		$updatecontrol=$fieldname . DF_FILENAMECONTROL;
+		$vectorcontrol=$fieldname . DF_VECTORCONTROL;
+		$mform->addElement('hidden', $updatecontrol, '',array('id' => $updatecontrol));
+		$mform->addElement('hidden', $vectorcontrol, '',array('id' => $vectorcontrol));
+		$mform->addElement('hidden', "{$fieldname}_" . DF_DRAFTIDCONTROL, $draftitemid);
+		$mform->setType($updatecontrol, PARAM_TEXT); 
+		$mform->setType($vectorcontrol, PARAM_TEXT);
+		$mform->setType("{$fieldname}_" . DF_DRAFTIDCONTROL, PARAM_TEXT); 
+		$vectordata="";
 		
+
 		 switch ($field->{DF_FIELD_RECTYPE}){
         	case DF_REPLYVOICE:
         		$recstring .= fetchAudioRecorderForSubmission('auto','ignore',$updatecontrol,$usercontextid,"user","draft",$draftitemid);
@@ -194,7 +199,7 @@ class dataformfield_poodll_renderer extends mod_dataform\pluginbase\dataformfiel
         	
         	case DF_REPLYWHITEBOARD:
 				//the board size is the size of the drawing canvas, not the widget
-				switch($field->get(DF_FIELD_BOARDSIZE)){
+				switch($field->{DF_FIELD_BOARDSIZE}){
 					case "320x320": $width=320;$height=320;break;
 					case "400x600": $width=400;$height=600;break;
 					case "500x500": $width=500;$height=500;break;
@@ -227,7 +232,7 @@ class dataformfield_poodll_renderer extends mod_dataform\pluginbase\dataformfiel
 				}
 				error_log('imageurl: ' . $imageurl);
 				
-        		$recstring  .= fetchWhiteboardForSubmission($updatecontrol,$usercontextid,"user","draft",$draftitemid,$width, $height, $imageurl);
+        		$recstring  .= fetchWhiteboardForSubmission($updatecontrol,$usercontextid,"user","draft",$draftitemid,$width, $height, $imageurl,"",false, $vectorcontrol,$vectordata);
         		break;
         		
         	case DF_REPLYSNAPSHOT:

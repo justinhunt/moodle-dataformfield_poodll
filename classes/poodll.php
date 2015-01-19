@@ -30,6 +30,7 @@ define('DF_POODLL_CONFIG_FILEAREA', 'view');
 define('DF_POODLL_WB_FILEAREA', 'content');
 
 define('DF_FILENAMECONTROL','_filename');
+define('DF_VECTORCONTROL','_vectordata');
 define('DF_DRAFTIDCONTROL','filemanager');
 
 define('DF_FIELD_RECTYPE', 'param1');
@@ -48,6 +49,8 @@ class dataformfield_poodll_poodll extends dataformfield_file_file {
      */
     public function update_content($entry, array $values = null,$savenew=false) {
         global $DB, $USER;
+		
+		//see textarea for how to get vectordata
 //print_r($entry);
 //print_r($values);
         $entryid =  $entry->id;
@@ -62,6 +65,9 @@ class dataformfield_poodll_poodll extends dataformfield_file_file {
                 }
             }
         }
+
+		 
+
      
         // store uploaded files
         $draftarea =$filemanager; // isset($entry->{$fieldname . DF_DRAFTIDCONTROL}) ? $entry->{$fieldname . DF_DRAFTIDCONTROL} : null;
