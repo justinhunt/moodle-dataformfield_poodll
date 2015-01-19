@@ -20,8 +20,8 @@
  * @copyright 2013 Justin Hunt
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-require_once("$CFG->dirroot/mod/dataform/field/field_form.php");
-#require_once("$CFG->dirroot/mod/dataform/field/file/field_form.php");
+//require_once("$CFG->dirroot/mod/dataform/field/field_form.php");
+//require_once("$CFG->dirroot/mod/dataform/field/file/field_form.php");
 
 //Get our poodll resource handling lib
 require_once($CFG->dirroot . '/filter/poodll/poodllresourcelib.php');
@@ -51,7 +51,7 @@ define('DF_FIELD_BACKIMAGE', 'param3');
 define('DF_FIELD_BOARDSIZE', 'param4');
 */
 
-class dataformfield_poodll_form extends dataformfield_form {
+class dataformfield_poodll_form extends \mod_dataform\pluginbase\dataformfieldform {
 
       
 	function field_definition(){
@@ -121,13 +121,14 @@ class dataformfield_poodll_form extends dataformfield_form {
 		$mform->setDefault(DF_FIELD_BOARDSIZE, $boardsize);
 		$mform->disabledIf(DF_FIELD_BOARDSIZE, DF_FIELD_RECTYPE, 'ne', DF_REPLYWHITEBOARD );
 
-		 parent::field_definition();
+		// parent::field_definition();
 	
 	}
 
     /**
      *
      */
+	 
     function filetypes_definition() {
 
 		$mform =& $this->_form;

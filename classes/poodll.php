@@ -21,7 +21,7 @@
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-require_once("$CFG->dirroot/mod/dataform/field/file/field_class.php");
+require_once("$CFG->dirroot/mod/dataform/field/file/classes/file.php");
 
 define('DF_POODLL_FILEAREA', 'content');
 define('DF_POODLL_COMPONENT', 'mod_dataform');
@@ -39,19 +39,19 @@ define('DF_FIELD_BOARDSIZE', 'param4');
 define('DF_FIELD_DRAFTID', 'param5');
 
 
-class dataformfield_poodll extends dataformfield_file {
+class dataformfield_poodll_poodll extends dataformfield_file_file {
 
     public $type = 'poodll';
 	
 	 /**
      *
      */
-    public function update_content($entry, array $values = null) {
+    public function update_content($entry, array $values = null,$savenew=false) {
         global $DB, $USER;
 //print_r($entry);
 //print_r($values);
         $entryid =  $entry->id;
-        $fieldid = $this->field->id;
+        $fieldid = $this->id;
 		$fieldname = "field_{$fieldid}_{$entryid}";
 
 		$filemanager = $alttext = $delete = $editor = null;

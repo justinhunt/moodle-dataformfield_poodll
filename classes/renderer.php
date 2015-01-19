@@ -29,73 +29,67 @@ define('DF_REPLYWHITEBOARD',3);
 define('DF_REPLYSNAPSHOT',4);
 define('DF_REPLYTALKBACK',5);
 
-require_once("$CFG->dirroot/mod/dataform/field/renderer.php");
+#require_once("$CFG->dirroot/mod/dataform/field/renderer.php");
 require_once($CFG->dirroot . '/filter/poodll/poodllresourcelib.php');
 
 /**
  *
  */
-class dataformfield_poodll_renderer extends dataformfield_renderer {
+class dataformfield_poodll_renderer extends mod_dataform\pluginbase\dataformfieldrenderer {
 
 
-	   /**
-     * 
+	  /**
+     *
      */
-    protected function replacements(array $tags = null, $entry = null, array $options = null) {
+    protected function replacements(array $patterns, $entry, array $options = null) {
         $field = $this->_field;
-        $fieldname = $field->name();
-        $edit = !empty($options['edit']) ? $options['edit'] : false;
+        $fieldname = $field->name;
+        $edit = !empty($options['edit']);
 
         $replacements = array();
 
-        // rules support
-        $tags = $this->add_clean_pattern_keys($tags);
+        if ($edit) {
+            $firstinput = false;
+            foreach ($patterns as $pattern => $cleanpattern) {
+                $noedit = $this->is_noedit($pattern);
+                if (!$firstinput and !$noedit and $cleanpattern == "[[$fieldname]]") {
+                    $required = $this->is_required($pattern);
+                    $replacements[$pattern] = array(array($this, 'display_edit'), array($entry, array('required' => $required)));
+                    $firstinput = true;
+                } else {
+                    $replacements[$pattern] = '';
+                }
+            }
+            return $replacements;
+        }
 
-        foreach ($tags as $tag => $cleantag) {
-            if ($edit) {
-                if ($cleantag == "[[$fieldname]]") {
-                    $required = $this->is_required($tag);
-                    $replacements[$tag] = array('', array(array($this,'display_edit'), array($entry, array('required' => $required))));
-                } else {
-                    $replacements[$tag] = '';
-                }
-            } else {
-                $displaybrowse = '';
-                if ($cleantag == "[[$fieldname]]") {
-                    $displaybrowse = $this->display_browse($entry);
-                // url    
-                } else if ($cleantag == "[[{$fieldname}:url]]") {
-                    $displaybrowse = $this->display_browse($entry, array('url' => 1));
+        // Browse mode
+        foreach ($patterns as $pattern => $cleanpattern) {
+            $displaybrowse = '';
+            if ($cleanpattern == "[[$fieldname]]") {
+                $displaybrowse = $this->display_browse($entry);
+            } else if ($cleanpattern == "[[{$fieldname}:url]]") {
+                // url
+                $displaybrowse = $this->display_browse($entry, array('url' => 1));
+            } else if ($cleanpattern == "[[{$fieldname}:alt]]") {
                 // alt
-                } else if ($cleantag == "[[{$fieldname}:alt]]") {
-                    $displaybrowse = $this->display_browse($entry, array('alt' => 1));
+                $displaybrowse = $this->display_browse($entry, array('alt' => 1));
+            } else if ($cleanpattern == "[[{$fieldname}:size]]") {
                 // size
-                } else if ($cleantag == "[[{$fieldname}:size]]") {
-                    $displaybrowse = $this->display_browse($entry, array('size' => 1));
-                // content (for html files)
-                } else if ($cleantag == "[[{$fieldname}:content]]") {
-                    if ($edit) {
-                        $replacements[$tag] = array('', array(array($this,'display_edit_content'), array($entry)));
-                    } else {
-                        $displaybrowse = $this->display_browse($entry, array('content' => 1));
-                    }
+                $displaybrowse = $this->display_browse($entry, array('size' => 1));
+            } else if ($cleanpattern == "[[{$fieldname}:download]]") {
                 // download
-                } else if ($cleantag == "[[{$fieldname}:download]]") {
-                    $displaybrowse = $this->display_browse($entry, array('download' => 1));
+                $displaybrowse = $this->display_browse($entry, array('download' => 1));
+            } else if ($cleanpattern == "[[{$fieldname}:downloadcount]]") {
                 // download count
-                } else if ($cleantag == "[[{$fieldname}:downloadcount]]") {
-                    $displaybrowse = $this->display_browse($entry, array('downloadcount' => 1));
-                }
-                
-                if (!empty($displaybrowse)) {
-                    if ($this->is_hidden($tag)) {
-                        $displaybrowse = html_writer::tag('span', $displaybrowse, array('class' => 'hide'));
-                    }
-                    $replacements[$tag] = array('html', $displaybrowse);
-                } else {
-                    $replacements[$tag] = '';
-                }
-            }           
+                $displaybrowse = $this->display_browse($entry, array('downloadcount' => 1));
+            }
+
+            if (!empty($displaybrowse)) {
+                $replacements[$pattern] = $displaybrowse;
+            } else {
+                $replacements[$pattern] = '';
+            }
         }
 
         return $replacements;
@@ -108,7 +102,7 @@ class dataformfield_poodll_renderer extends dataformfield_renderer {
     public function display_browse($entry, $params = null, $hidden = false) {
 
         $field = $this->_field;
-        $fieldid = $field->id();
+        $fieldid = $field->id;
         $entryid = $entry->id;
 
         $content = isset($entry->{"c{$fieldid}_content"}) ? $entry->{"c{$fieldid}_content"} : null;
@@ -125,7 +119,7 @@ class dataformfield_poodll_renderer extends dataformfield_renderer {
         }
 
         $fs = get_file_storage();
-        $files = $fs->get_area_files($field->df()->context->id, 'mod_dataform', 'content', $contentid);
+        $files = $fs->get_area_files($field->get_df()->context->id, 'mod_dataform', 'content', $contentid);
         if (!$files or !(count($files) > 1)) {
             return '';
         }
@@ -142,7 +136,7 @@ class dataformfield_poodll_renderer extends dataformfield_renderer {
 
                 $filename = $file->get_filename();
                 $filenameinfo = pathinfo($filename);
-                $path = "/{$field->df()->context->id}/mod_dataform/content/$contentid";
+                $path = "/{$field->get_df()->context->id}/mod_dataform/content/$contentid";
 
                 $strfiles[] = $this->display_file($file, $path, $altname, $params);
             }
@@ -157,7 +151,7 @@ class dataformfield_poodll_renderer extends dataformfield_renderer {
         global $USER, $PAGE;
 
         $field = $this->_field;
-        $fieldid = $field->id();
+        $fieldid = $field->id;
 
         $entryid = $entry->id;
         $contentid = isset($entry->{"c{$fieldid}_id"}) ? $entry->{"c{$fieldid}_id"} : null;
@@ -166,16 +160,16 @@ class dataformfield_poodll_renderer extends dataformfield_renderer {
 
         $fieldname = "field_{$fieldid}_{$entryid}";
         $fmoptions = array('subdirs' => 0,
-                            'maxbytes' => $field->get('param1'),
-                            'maxfiles' => $field->get('param2'),
-                            'accepted_types' => array($field->get('param3')));
+                            'maxbytes' =>$field->param1,
+                            'maxfiles' =>$field->param2,
+                            'accepted_types' => array($field->param3));
 
         $draftitemid = file_get_submitted_draft_itemid("{$fieldname}_" . DF_DRAFTIDCONTROL);
-        file_prepare_draft_area($draftitemid, $field->df()->context->id, 'mod_dataform', 'content', $contentid, $fmoptions);
+        file_prepare_draft_area($draftitemid, $field->get_df()->context->id, 'mod_dataform', 'content', $contentid, $fmoptions);
     	$usercontext = context_user::instance($USER->id);
 		$usercontextid=  $usercontext->id;
 		
-		$contextid =  $field->df()->context->id;
+		$contextid =  $field->get_df()->context->id;
 		$recstring="";
 		
 		//Set the control that will get notified about the recorded file's name
@@ -185,7 +179,7 @@ class dataformfield_poodll_renderer extends dataformfield_renderer {
 		$mform->setType("{$fieldname}_" . DF_DRAFTIDCONTROL, PARAM_TEXT); 
 		$updatecontrol=$fieldname . DF_FILENAMECONTROL;
 		
-		 switch ($field->get(DF_FIELD_RECTYPE)){
+		 switch ($field->{DF_FIELD_RECTYPE}){
         	case DF_REPLYVOICE:
         		$recstring .= fetchAudioRecorderForSubmission('auto','ignore',$updatecontrol,$usercontextid,"user","draft",$draftitemid);
         		break;
@@ -245,6 +239,9 @@ class dataformfield_poodll_renderer extends dataformfield_renderer {
 
 		$mform->addElement('static', 'description', '',$recstring);
     }
+	
+	
+	
 
     /**
      * 
@@ -299,14 +296,14 @@ class dataformfield_poodll_renderer extends dataformfield_renderer {
     
       
      public function pluginfile_patterns() {
-         return array("[[{$this->_field->name()}]]");
+         return array("[[{$this->_field->name}]]");
      }
    
       /**
       * Array of patterns this field supports 
       */
      protected function patterns() {
-         $fieldname = $this->_field->name();
+         $fieldname = $this->_field->name;
  
          $patterns = parent::patterns();
          $patterns["[[$fieldname]]"] = array(true);
