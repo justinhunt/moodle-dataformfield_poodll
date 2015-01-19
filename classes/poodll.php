@@ -41,6 +41,7 @@ define('DF_FIELD_DRAFTID', 'param5');
 define('DF_POODLLFIELD_HEIGHT','param6');
 define('DF_POODLLFIELD_WIDTH','param7');
 define('DF_POODLLFIELD_URLONLY','param8');
+define('DF_POODLLFIELD_BACKIMAGE_URL','param9');
 
 define('DF_REPLYMP3VOICE',0);
 define('DF_REPLYVOICE',1);

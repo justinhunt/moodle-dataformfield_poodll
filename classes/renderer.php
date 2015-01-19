@@ -213,7 +213,6 @@ class dataformfield_poodll_renderer extends mod_dataform\pluginbase\dataformfiel
 				
 				$imageurl="";
 				if($files && count($files)>0){
-
 					$file = array_pop($files);
 					$imageurl = file_rewrite_pluginfile_urls('@@PLUGINFILE@@/' . $file->get_filename(), 
 								'pluginfile.php', 
@@ -223,8 +222,10 @@ class dataformfield_poodll_renderer extends mod_dataform\pluginbase\dataformfiel
 								$file->get_itemid());
 				
 				}
-				error_log('imageurl: ' . $imageurl);
-				
+				//since file upload fails, we use the external link way
+				if(empty($imageurl)){
+					$imageurl = $field->{DF_POODLLFIELD_BACKIMAGE_URL};
+				}
         		$recstring  .= fetchWhiteboardForSubmission($updatecontrol,$usercontextid,"user","draft",$draftitemid,$width, $height, $imageurl,"",false, $vectorcontrol,$vectordata);
         		break;
         		

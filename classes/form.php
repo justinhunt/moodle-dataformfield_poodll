@@ -90,6 +90,10 @@ class dataformfield_poodll_form extends \mod_dataform\pluginbase\dataformfieldfo
 		$mform->addElement('filemanager', DF_FIELD_BACKIMAGE, get_string('backimage', 'dataformfield_poodll'), null,array('subdirs' => 0, 'maxbytes' => 0, 'maxfiles' => 1));
 		$mform->setDefault(DF_FIELD_BACKIMAGE, $backimage);
 		$mform->disabledIf(DF_FIELD_BACKIMAGE, DF_FIELD_RECTYPE, 'ne', DF_REPLYWHITEBOARD );
+		
+		//url of back image (since uploading don't work here)
+		$mform->addElement('text', DF_POODLLFIELD_BACKIMAGE_URL,get_string('backimageurl', 'dataformfield_poodll'));
+		$mform->setType(DF_POODLLFIELD_BACKIMAGE_URL, PARAM_TEXT);
 
 		$boardsizes = array(
 			'320x320' => '320x320',
