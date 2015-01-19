@@ -32,3 +32,4 @@ $string['recordertype'] = 'Recorder Type';
 $string['timelimit'] = 'Time Limit';
 $string['backimage'] = 'Back Image';
 $string['boardsize'] = 'Boardsize';
+$string['urlonly'] = 'Show URL only';

@@ -22,13 +22,6 @@
  */
 defined('MOODLE_INTERNAL') or die();
 
-define('DF_REPLYMP3VOICE',0);
-define('DF_REPLYVOICE',1);
-define('DF_REPLYVIDEO',2);
-define('DF_REPLYWHITEBOARD',3);
-define('DF_REPLYSNAPSHOT',4);
-define('DF_REPLYTALKBACK',5);
-
 #require_once("$CFG->dirroot/mod/dataform/field/renderer.php");
 require_once($CFG->dirroot . '/filter/poodll/poodllresourcelib.php');
 
@@ -173,15 +166,15 @@ class dataformfield_poodll_renderer extends mod_dataform\pluginbase\dataformfiel
 		$recstring="";
 		
 		//Set the control that will get notified about the recorded file's name
-		$updatecontrol=$fieldname . DF_FILENAMECONTROL;
-		$vectorcontrol=$fieldname . DF_VECTORCONTROL;
+		$updatecontrol=$fieldname . "_" .  DF_FILENAMECONTROL;
+		$vectorcontrol=$fieldname . "_" . DF_VECTORCONTROL;
 		$mform->addElement('hidden', $updatecontrol, '',array('id' => $updatecontrol));
 		$mform->addElement('hidden', $vectorcontrol, '',array('id' => $vectorcontrol));
 		$mform->addElement('hidden', "{$fieldname}_" . DF_DRAFTIDCONTROL, $draftitemid);
 		$mform->setType($updatecontrol, PARAM_TEXT); 
 		$mform->setType($vectorcontrol, PARAM_TEXT);
 		$mform->setType("{$fieldname}_" . DF_DRAFTIDCONTROL, PARAM_TEXT); 
-		$vectordata="";
+		$vectordata=$content1;
 		
 
 		 switch ($field->{DF_FIELD_RECTYPE}){
@@ -257,43 +250,50 @@ class dataformfield_poodll_renderer extends mod_dataform\pluginbase\dataformfiel
 		$field = $this->_field;
         $filename = $file->get_filename();
         $displayname = $altname ? $altname : $filename;
-  
-        if ($filename) {
-             $filepath = moodle_url::make_file_url('/pluginfile.php', "$path/$filename") ;   
 
-			//display file as a player or an image
-			 if ($file->is_valid_image()) {
-				 $imgattr = array();
-				 $imgattr['src'] = $filepath;
-				 $imgattr['alt'] = $filename;
-				 $str = html_writer::empty_tag('img', $imgattr);
-				 return $str;
-				//return "<img alt='$filename' src='$filepath'/>";
-			}else{
-				return format_text("<a href='$filepath'>$filename</a>",FORMAT_HTML);
-			}
-			
-			//preferred to do it the way below, but the $field object did not appear populated
-			/*
-			 switch ($field->get(DF_FIELD_RECTYPE)){
+        if ($filename) {
+             $filepath = moodle_url::make_file_url('/pluginfile.php', "$path/$filename") ;
+
+			switch ($field->{DF_FIELD_RECTYPE}){
 				case DF_REPLYSNAPSHOT:
 				case DF_REPLYWHITEBOARD:
-					 $imgattr = array();
-					 $imgattr['src'] = $filepath;
-					 $imgattr['alt'] = $filename;
-					 $str = html_writer::empty_tag('img', $imgattr);
-					 return $str;
-				case DF_REPLYVOICE:
-					if(stripos($filename,'.flv')){
-						return fetchSimpleAudioPlayer('auto',urlencode($filepath),'http');
+					if ($file->is_valid_image()) {
+						 $imgattr = array();
+						 $imgattr['src'] = $filepath;
+						 $imgattr['alt'] = $filename;
+						 if($field->{DF_POODLLFIELD_WIDTH} || $field->{DF_POODLLFIELD_HEIGHT}){
+							$imgattr['style'] = 'width: ' . $field->{DF_POODLLFIELD_WIDTH} . 'px; ' . 'height: ' . $field->{DF_POODLLFIELD_HEIGHT} . 'px; ';
+						 }
+						 $str = html_writer::empty_tag('img', $imgattr);
+						 return $str;
+					}else{
+						return '';
 					}
+					break;
+				case DF_REPLYVOICE:
 				case DF_REPLYVIDEO:
 				case DF_REPLYMP3VOICE:
+					//this will occur if we have poster/splash image
+					//we don't want to dislay it inline
+					if ($file->is_valid_image()) {
+						return '';
+					}
+					if($field->{DF_POODLLFIELD_URLONLY}){
+						return $filepath;
+					}else{
+					   $dim = "";	
+						if($field->{DF_POODLLFIELD_WIDTH} || $field->{DF_POODLLFIELD_HEIGHT}){
+							$dim = '?d=' . $field->{DF_POODLLFIELD_WIDTH}. 'x' . $field->{DF_POODLLFIELD_HEIGHT};
+						}
+						//this will format the player using whatever filter the admin has enabled
+						return format_text("<a href='$filepath" . $dim . "'>$filename</a>",FORMAT_HTML);
+					}
+					break;
 				default:
 					return format_text("<a href='$filepath'>$filename</a>",FORMAT_HTML);
 			}
-			*/
-	 
+
+			
 		}else{
 			return "";
 		}

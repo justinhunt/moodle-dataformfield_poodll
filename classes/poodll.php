@@ -38,11 +38,26 @@ define('DF_FIELD_TIMELIMIT', 'param2');
 define('DF_FIELD_BACKIMAGE', 'param3');
 define('DF_FIELD_BOARDSIZE', 'param4');
 define('DF_FIELD_DRAFTID', 'param5');
+define('DF_POODLLFIELD_HEIGHT','param6');
+define('DF_POODLLFIELD_WIDTH','param7');
+define('DF_POODLLFIELD_URLONLY','param8');
 
+define('DF_REPLYMP3VOICE',0);
+define('DF_REPLYVOICE',1);
+define('DF_REPLYVIDEO',2);
+define('DF_REPLYWHITEBOARD',3);
+define('DF_REPLYSNAPSHOT',4);
 
 class dataformfield_poodll_poodll extends dataformfield_file_file {
 
     public $type = 'poodll';
+	
+	    /**
+     *
+     */
+    public function content_names() {
+        return array('',DF_DRAFTIDCONTROL,DF_FILENAMECONTROL,DF_VECTORCONTROL);
+    }
 	
 	 /**
      *
@@ -51,8 +66,7 @@ class dataformfield_poodll_poodll extends dataformfield_file_file {
         global $DB, $USER;
 		
 		//see textarea for how to get vectordata
-//print_r($entry);
-//print_r($values);
+
         $entryid =  $entry->id;
         $fieldid = $this->id;
 		$fieldname = "field_{$fieldid}_{$entryid}";
@@ -66,9 +80,6 @@ class dataformfield_poodll_poodll extends dataformfield_file_file {
             }
         }
 
-		 
-
-     
         // store uploaded files
         $draftarea =$filemanager; // isset($entry->{$fieldname . DF_DRAFTIDCONTROL}) ? $entry->{$fieldname . DF_DRAFTIDCONTROL} : null;
         $usercontext = context_user::instance($USER->id);
@@ -81,8 +92,13 @@ class dataformfield_poodll_poodll extends dataformfield_file_file {
             $rec = new object;
             $rec->fieldid = $fieldid;
             $rec->entryid = $entryid;
-            $rec->content = 1;
-            $rec->content1 = $alttext;
+           if(array_key_exists(DF_FILENAMECONTROL,$values)){
+				$rec->content = $values[DF_FILENAMECONTROL];		
+			}
+		 
+			if(array_key_exists(DF_VECTORCONTROL,$values)){
+				$rec->content1 = $values[DF_VECTORCONTROL];	
+			}
 
             if (!empty($contentid)) {
                 $rec->id = $contentid;
