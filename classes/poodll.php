@@ -80,7 +80,7 @@ class dataformfield_poodll_poodll extends dataformfield_file_file {
                 }
             }
         }
-
+//print_r($values);
         // store uploaded files
         $draftarea =$filemanager; // isset($entry->{$fieldname . DF_DRAFTIDCONTROL}) ? $entry->{$fieldname . DF_DRAFTIDCONTROL} : null;
         $usercontext = context_user::instance($USER->id);

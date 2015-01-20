@@ -106,7 +106,8 @@ class dataformfield_poodll_renderer extends mod_dataform\pluginbase\dataformfiel
         if (empty($content)) {
             return '';
         }
-
+		
+		//I think this is meanngless in the PoodLL field. But just in case ...
         if (!empty($params['downloadcount'])) {
             return $content2;
         }
@@ -128,10 +129,13 @@ class dataformfield_poodll_renderer extends mod_dataform\pluginbase\dataformfiel
             if (!$file->is_directory()) {
 
                 $filename = $file->get_filename();
-                $filenameinfo = pathinfo($filename);
-                $path = "/{$field->get_df()->context->id}/mod_dataform/content/$contentid";
-
-                $strfiles[] = $this->display_file($file, $path, $altname, $params);
+				//we only want to display the most recent file.
+				echo $entryid .':::'. $filename . ":" . $content . '<br/>';
+				if($filename==$content){
+					$filenameinfo = pathinfo($filename);
+					$path = "/{$field->get_df()->context->id}/mod_dataform/content/$contentid";
+					$strfiles[] = $this->display_file($file, $path, $altname, $params);
+				}
             }
         }
         return implode("<br />\n", $strfiles);
@@ -168,8 +172,8 @@ class dataformfield_poodll_renderer extends mod_dataform\pluginbase\dataformfiel
 		//Set the control that will get notified about the recorded file's name
 		$updatecontrol=$fieldname . "_" .  DF_FILENAMECONTROL;
 		$vectorcontrol=$fieldname . "_" . DF_VECTORCONTROL;
-		$mform->addElement('hidden', $updatecontrol, '',array('id' => $updatecontrol));
-		$mform->addElement('hidden', $vectorcontrol, '',array('id' => $vectorcontrol));
+		$mform->addElement('hidden', $updatecontrol, $content,array('id' => $updatecontrol));
+		$mform->addElement('hidden', $vectorcontrol, $content1,array('id' => $vectorcontrol));
 		$mform->addElement('hidden', "{$fieldname}_" . DF_DRAFTIDCONTROL, $draftitemid);
 		$mform->setType($updatecontrol, PARAM_TEXT); 
 		$mform->setType($vectorcontrol, PARAM_TEXT);
