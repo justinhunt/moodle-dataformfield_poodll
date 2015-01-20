@@ -130,7 +130,7 @@ class dataformfield_poodll_renderer extends mod_dataform\pluginbase\dataformfiel
 
                 $filename = $file->get_filename();
 				//we only want to display the most recent file.
-				echo $entryid .':::'. $filename . ":" . $content . '<br/>';
+				//echo $entryid .':::'. $filename . ":" . $content . '<br/>';
 				if($filename==$content){
 					$filenameinfo = pathinfo($filename);
 					$path = "/{$field->get_df()->context->id}/mod_dataform/content/$contentid";
