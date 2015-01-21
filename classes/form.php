@@ -84,13 +84,15 @@ class dataformfield_poodll_form extends \mod_dataform\pluginbase\dataformfieldfo
 		}else{
 			$contextid = 0;
 		}
+		//disable this for now, since it doesn't work, till we can get a file area to use. 
+		/*
 		file_prepare_draft_area($draftitemid, $contextid, DF_POODLL_CONFIG_COMPONENT, DF_POODLL_CONFIG_FILEAREA, 
 		$itemid,
 		array('subdirs' => 0, 'maxbytes' => 0, 'maxfiles' => 1));
 		$mform->addElement('filemanager', DF_FIELD_BACKIMAGE, get_string('backimage', 'dataformfield_poodll'), null,array('subdirs' => 0, 'maxbytes' => 0, 'maxfiles' => 1));
 		$mform->setDefault(DF_FIELD_BACKIMAGE, $backimage);
 		$mform->disabledIf(DF_FIELD_BACKIMAGE, DF_FIELD_RECTYPE, 'ne', DF_REPLYWHITEBOARD );
-		
+		*/
 		//url of back image (since uploading don't work here)
 		$mform->addElement('text', DF_POODLLFIELD_BACKIMAGE_URL,get_string('backimageurl', 'dataformfield_poodll'));
 		$mform->setType(DF_POODLLFIELD_BACKIMAGE_URL, PARAM_TEXT);
@@ -108,9 +110,6 @@ class dataformfield_poodll_form extends \mod_dataform\pluginbase\dataformfieldfo
 		$mform->setDefault(DF_FIELD_BOARDSIZE, $boardsize);
 		$mform->disabledIf(DF_FIELD_BOARDSIZE, DF_FIELD_RECTYPE, 'ne', DF_REPLYWHITEBOARD );
 
-		// Show url only.
-        $mform->addElement('selectyesno', DF_POODLLFIELD_URLONLY, get_string('urlonly', 'dataformfield_poodll'));
-		
 		// Max video/pic dimensions
         $grp = array();
         $grp[] = &$mform->createElement('text', DF_POODLLFIELD_WIDTH, null, array('size' => '4', 'style' => 'width:inherit;'));

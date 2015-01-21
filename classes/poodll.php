@@ -40,7 +40,6 @@ define('DF_FIELD_BOARDSIZE', 'param4');
 define('DF_FIELD_DRAFTID', 'param5');
 define('DF_POODLLFIELD_HEIGHT','param6');
 define('DF_POODLLFIELD_WIDTH','param7');
-define('DF_POODLLFIELD_URLONLY','param8');
 define('DF_POODLLFIELD_BACKIMAGE_URL','param9');
 
 define('DF_REPLYMP3VOICE',0);
@@ -129,26 +128,30 @@ class dataformfield_poodll_poodll extends dataformfield_file_file {
 	public function insert_field($fromform = null) {
 		$fieldid = parent::insert_field($fromform);
 		if(!$fieldid){return;}
-		
+		//Disable this for now, since it doesn't work. We need a file area.
+		/*
 		$options = array();
 		$contextid = $this->df->context->id;
 		$contentid = $fieldid;
 		$filemanager = $this->field->{DF_FIELD_BACKIMAGE};
 		$filearea = DF_POODLL_CONFIG_FILEAREA;//$this->filearea();
 		file_save_draft_area_files($filemanager, $contextid, DF_POODLL_COMPONENT, $filearea, $contentid, $options);
-		
+		*/
 	}
 	
 	public function update_field($fromform = null) {
 		$fieldupdated = parent::update_field($fromform);
 		if(!$fieldupdated){return;}
 		
+		//disable this for since it doesn't work. We need a file area.
+		/*
 		$options = array();
 		$contextid = $this->df->context->id;
 		$contentid = $this->field->id;
 		$filemanager =  $this->field->{DF_FIELD_BACKIMAGE};
 		$filearea =  DF_POODLL_CONFIG_FILEAREA;//$this->filearea();
 		file_save_draft_area_files($filemanager, $contextid, DF_POODLL_COMPONENT, $filearea, $contentid, $options);
+		*/
 	}
 	
  }

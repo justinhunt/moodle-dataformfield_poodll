@@ -34,3 +34,4 @@ $string['backimage'] = 'Back Image';
 $string['boardsize'] = 'Boardsize';
 $string['urlonly'] = 'Show URL only';
 $string['backimageurl'] = 'Backimage URL (upload altern.)';
+$string['download'] = 'Download';

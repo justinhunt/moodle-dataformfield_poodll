@@ -64,18 +64,15 @@ class dataformfield_poodll_renderer extends mod_dataform\pluginbase\dataformfiel
             } else if ($cleanpattern == "[[{$fieldname}:url]]") {
                 // url
                 $displaybrowse = $this->display_browse($entry, array('url' => 1));
-            } else if ($cleanpattern == "[[{$fieldname}:alt]]") {
-                // alt
-                $displaybrowse = $this->display_browse($entry, array('alt' => 1));
             } else if ($cleanpattern == "[[{$fieldname}:size]]") {
                 // size
                 $displaybrowse = $this->display_browse($entry, array('size' => 1));
+			 } else if ($cleanpattern == "[[{$fieldname}:alt]]") {
+                // size
+                $displaybrowse = $this->display_browse($entry, array('alt' => 1));
             } else if ($cleanpattern == "[[{$fieldname}:download]]") {
                 // download
                 $displaybrowse = $this->display_browse($entry, array('download' => 1));
-            } else if ($cleanpattern == "[[{$fieldname}:downloadcount]]") {
-                // download count
-                $displaybrowse = $this->display_browse($entry, array('downloadcount' => 1));
             }
 
             if (!empty($displaybrowse)) {
@@ -106,11 +103,6 @@ class dataformfield_poodll_renderer extends mod_dataform\pluginbase\dataformfiel
         if (empty($content)) {
             return '';
         }
-		
-		//I think this is meanngless in the PoodLL field. But just in case ...
-        if (!empty($params['downloadcount'])) {
-            return $content2;
-        }
 
         $fs = get_file_storage();
         $files = $fs->get_area_files($field->get_df()->context->id, 'mod_dataform', 'content', $contentid);
@@ -118,8 +110,8 @@ class dataformfield_poodll_renderer extends mod_dataform\pluginbase\dataformfiel
             return '';
         }
 
-        $altname = empty($content1) ? '' : s($content1);
-
+		//return ALT name
+        $altname = empty($content) ? '' : s($content);
         if (!empty($params['alt'])) {
             return $altname;
         }
@@ -138,7 +130,7 @@ class dataformfield_poodll_renderer extends mod_dataform\pluginbase\dataformfiel
 				}
             }
         }
-        return implode("<br />\n", $strfiles);
+        return implode(" ", $strfiles);
     }
 	
      /**
@@ -208,6 +200,9 @@ class dataformfield_poodll_renderer extends mod_dataform\pluginbase\dataformfiel
 				
 				//Get Backimage, if we have one
 				// get file system handle for fetching url to submitted media prompt (if there is one) 
+				$imageurl="";
+				//disable this for now, since it doesn't work. We need a file area. 
+				/*
 				$fs = get_file_storage();
 				$filearea =  DF_POODLL_CONFIG_FILEAREA;//$field->filearea();
 				$itemid=$fieldid;
@@ -215,7 +210,7 @@ class dataformfield_poodll_renderer extends mod_dataform\pluginbase\dataformfiel
 								$filearea, 
 								$itemid);
 				
-				$imageurl="";
+				
 				if($files && count($files)>0){
 					$file = array_pop($files);
 					$imageurl = file_rewrite_pluginfile_urls('@@PLUGINFILE@@/' . $file->get_filename(), 
@@ -226,6 +221,7 @@ class dataformfield_poodll_renderer extends mod_dataform\pluginbase\dataformfiel
 								$file->get_itemid());
 				
 				}
+				*/
 				//since file upload fails, we use the external link way
 				if(empty($imageurl)){
 					$imageurl = $field->{DF_POODLLFIELD_BACKIMAGE_URL};
@@ -257,7 +253,20 @@ class dataformfield_poodll_renderer extends mod_dataform\pluginbase\dataformfiel
         $displayname = $altname ? $altname : $filename;
 
         if ($filename) {
-             $filepath = moodle_url::make_file_url('/pluginfile.php', "$path/$filename") ;
+             $filepath = moodle_url::make_file_url('/pluginfile.php', "$path/$filename");
+			 
+			 //If we just want the URL, return that.
+			if (!empty($params['url'])) {
+				return $filepath;
+			}
+			//If we just want the download link
+			if (!empty($params['download'])) {
+				return "<a href='" . $filepath . "' class='dataform_poodll_download'>" . get_string('download','dataformfield_poodll') . "</a>";
+			}
+			//If we just want the size, return that.
+			if (!empty($params['size'])) {
+				return $file->get_filesize();
+			}
 
 			switch ($field->{DF_FIELD_RECTYPE}){
 				case DF_REPLYSNAPSHOT:
@@ -283,16 +292,14 @@ class dataformfield_poodll_renderer extends mod_dataform\pluginbase\dataformfiel
 					if ($file->is_valid_image()) {
 						return '';
 					}
-					if($field->{DF_POODLLFIELD_URLONLY}){
-						return $filepath;
-					}else{
-					   $dim = "";	
-						if($field->{DF_POODLLFIELD_WIDTH} || $field->{DF_POODLLFIELD_HEIGHT}){
-							$dim = '?d=' . $field->{DF_POODLLFIELD_WIDTH}. 'x' . $field->{DF_POODLLFIELD_HEIGHT};
-						}
-						//this will format the player using whatever filter the admin has enabled
-						return format_text("<a href='$filepath" . $dim . "'>$filename</a>",FORMAT_HTML);
+
+				   $dim = "";	
+					if($field->{DF_POODLLFIELD_WIDTH} || $field->{DF_POODLLFIELD_HEIGHT}){
+						$dim = '?d=' . $field->{DF_POODLLFIELD_WIDTH}. 'x' . $field->{DF_POODLLFIELD_HEIGHT};
 					}
+					//this will format the player using whatever filter the admin has enabled
+					return format_text("<a href='$filepath" . $dim . "'>$filename</a>",FORMAT_HTML);
+
 					break;
 				default:
 					return format_text("<a href='$filepath'>$filename</a>",FORMAT_HTML);
@@ -316,14 +323,12 @@ class dataformfield_poodll_renderer extends mod_dataform\pluginbase\dataformfiel
          $fieldname = $this->_field->name;
  
          $patterns = parent::patterns();
-         $patterns["[[$fieldname]]"] = array(true);
-         $patterns["[[$fieldname:url]]"] = array(false);
-         $patterns["[[$fieldname:alt]]"] = array(true);
-        $patterns["[[$fieldname:size]]"] = array(false);
-         $patterns["[[$fieldname:content]]"] = array(false);
-         $patterns["[[$fieldname:download]]"] = array(false);
-         $patterns["[[$fieldname:downloadcount]]"] = array(false);
- 
+         $patterns["[[$fieldname]]"] = array(true,$fieldname);
+         $patterns["[[$fieldname:url]]"] =  array(true,$fieldname);
+		 $patterns["[[$fieldname:alt]]"] =  array(true,$fieldname);
+        $patterns["[[$fieldname:size]]"] =  array(true,$fieldname);
+         $patterns["[[$fieldname:download]]"] =  array(true,$fieldname);
+
          return $patterns; 
      }
      
