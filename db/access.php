@@ -15,17 +15,22 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * @package    dataformfield
- * @subpackage poodll
- * @copyright  2013 Justin Hunt
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package dataformfield_poodll
+ * @copyright 2015 Justin Hunt
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-defined('MOODLE_INTERNAL') or die;
+$capabilities = array(
+    // Add Instance.
+    'dataformfield/poodll:addinstance' => array(
 
-$plugin->version   = 2015012200;
-$plugin->requires  = 2010112400;
-$plugin->component = 'dataformfield_poodll';
-$plugin->maturity  = MATURITY_STABLE;
-$plugin->release   = '1.1 (Build 2015012200)';
-$plugin->dependencies = array('filter_poodll' => 2012120400);
+        'riskbitmask' => RISK_SPAM,
+
+        'captype' => 'write',
+        'contextlevel' => CONTEXT_MODULE,
+        'archetypes' => array(
+            'editingteacher' => CAP_ALLOW,
+            'manager' => CAP_ALLOW
+        ),
+    ),
+);
