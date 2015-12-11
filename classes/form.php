@@ -23,8 +23,6 @@
 //require_once("$CFG->dirroot/mod/dataform/field/field_form.php");
 //require_once("$CFG->dirroot/mod/dataform/field/file/field_form.php");
 
-//Get our poodll resource handling lib
-require_once($CFG->dirroot . '/filter/poodll/poodllresourcelib.php');
 require_once('poodll.php');
 //some constants for the type of online poodll assignment
 /*

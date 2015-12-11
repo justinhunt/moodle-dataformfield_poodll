@@ -22,8 +22,6 @@
  */
 defined('MOODLE_INTERNAL') or die();
 
-#require_once("$CFG->dirroot/mod/dataform/field/renderer.php");
-require_once($CFG->dirroot . '/filter/poodll/poodllresourcelib.php');
 
 /**
  *
@@ -175,15 +173,15 @@ class dataformfield_poodll_renderer extends mod_dataform\pluginbase\dataformfiel
 
 		 switch ($field->{DF_FIELD_RECTYPE}){
         	case DF_REPLYVOICE:
-        		$recstring .= fetchAudioRecorderForSubmission('auto','ignore',$updatecontrol,$usercontextid,"user","draft",$draftitemid);
+        		$recstring .= \filter_poodll\poodlltools::fetchAudioRecorderForSubmission('auto','ignore',$updatecontrol,$usercontextid,"user","draft",$draftitemid);
         		break;
         	
         	case DF_REPLYVIDEO:
-        		$recstring  .= fetchVideoRecorderForSubmission('auto','ignore',$updatecontrol,$usercontextid,"user","draft",$draftitemid);
+        		$recstring  .= \filter_poodll\poodlltools::fetchVideoRecorderForSubmission('auto','ignore',$updatecontrol,$usercontextid,"user","draft",$draftitemid);
         		break;
         	
         	case DF_REPLYMP3VOICE:
-        		$recstring .= fetchMP3RecorderForSubmission($updatecontrol,$usercontextid,"user","draft",$draftitemid);
+        		$recstring .= \filter_poodll\poodlltools::fetchMP3RecorderForSubmission($updatecontrol,$usercontextid,"user","draft",$draftitemid);
         		break;
         	
         	case DF_REPLYWHITEBOARD:
@@ -226,12 +224,12 @@ class dataformfield_poodll_renderer extends mod_dataform\pluginbase\dataformfiel
 				if(empty($imageurl)){
 					$imageurl = $field->{DF_POODLLFIELD_BACKIMAGE_URL};
 				}
-        		$recstring  .= fetchWhiteboardForSubmission($updatecontrol,$usercontextid,"user","draft",$draftitemid,$width, $height, $imageurl,"",false, $vectorcontrol,$vectordata);
+        		$recstring  .= \filter_poodll\poodlltools::fetchWhiteboardForSubmission($updatecontrol,$usercontextid,"user","draft",$draftitemid,$width, $height, $imageurl,"",false, $vectorcontrol,$vectordata);
         		break;
         		
         	case DF_REPLYSNAPSHOT:
 
-        		$recstring  .= fetchSnapshotCameraForSubmission($updatecontrol,'apic.jpg',350,400,$usercontextid,"user","draft",$draftitemid);
+        		$recstring  .= \filter_poodll\poodlltools::fetchSnapshotCameraforSubmission($updatecontrol,'apic.jpg',350,400,$usercontextid,"user","draft",$draftitemid);
         		break;
 
 		}
