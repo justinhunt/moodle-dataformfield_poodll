@@ -20,38 +20,24 @@
  * @copyright 2013 Justin Hunt
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-require_once("$CFG->dirroot/mod/dataform/field/field_form.php");
-#require_once("$CFG->dirroot/mod/dataform/field/file/field_form.php");
+//require_once("$CFG->dirroot/mod/dataform/field/field_form.php");
+//require_once("$CFG->dirroot/mod/dataform/field/file/field_form.php");
 
 //Get our poodll resource handling lib
 require_once($CFG->dirroot . '/filter/poodll/poodllresourcelib.php');
-
-/*
-define('DF_POODLL_FILEAREA', 'content');
-define('DF_POODLL_CONFIG_FILEAREA', 'field');
-define('DF_POODLL_COMPONENT', 'mod_dataform');
-define('DF_POODLL_CONFIG_COMPONENT', 'mod_dataform');
-define('DF_POODLL_WB_FILEAREA', 'content');
-*/
-
+require_once('poodll.php');
 //some constants for the type of online poodll assignment
+/*
 define('DF_REPLYMP3VOICE',0);
 define('DF_REPLYVOICE',1);
 define('DF_REPLYVIDEO',2);
 define('DF_REPLYWHITEBOARD',3);
 define('DF_REPLYSNAPSHOT',4);
-define('DF_REPLYTALKBACK',5);
-
-/*
-define('DF_FILENAMECONTROL','dataformfieldpoodll');
-
-define('DF_FIELD_RECTYPE', 'param1');
-define('DF_FIELD_TIMELIMIT', 'param2');
-define('DF_FIELD_BACKIMAGE', 'param3');
-define('DF_FIELD_BOARDSIZE', 'param4');
 */
 
-class dataformfield_poodll_form extends dataformfield_form {
+
+
+class dataformfield_poodll_form extends \mod_dataform\pluginbase\dataformfieldform {
 
       
 	function field_definition(){
@@ -63,18 +49,15 @@ class dataformfield_poodll_form extends dataformfield_form {
 		$boardsize = '400x600';//$this->get_config('boardsize');
 		$backimage = '';//$this->get_config('backimage');
 		$timelimit = 0;//$this->get_config('timelimit');
-      
-      
-		$recorderoptions = array();
-
-			$recorderoptions[DF_REPLYMP3VOICE] = get_string("replymp3voice", "dataformfield_poodll");
-			$recorderoptions[DF_REPLYVOICE] = get_string("replyvoice", "dataformfield_poodll");
-			$recorderoptions[DF_REPLYVIDEO ] = get_string("replyvideo", "dataformfield_poodll");
-			$recorderoptions[DF_REPLYWHITEBOARD ] = get_string("replywhiteboard", "dataformfield_poodll");
-			$recorderoptions[DF_REPLYSNAPSHOT] = get_string("replysnapshot", "dataformfield_poodll");
 		
-
-        
+      
+		//recorder options
+		$recorderoptions = array();
+		$recorderoptions[DF_REPLYMP3VOICE] = get_string("replymp3voice", "dataformfield_poodll");
+		$recorderoptions[DF_REPLYVOICE] = get_string("replyvoice", "dataformfield_poodll");
+		$recorderoptions[DF_REPLYVIDEO ] = get_string("replyvideo", "dataformfield_poodll");
+		$recorderoptions[DF_REPLYWHITEBOARD ] = get_string("replywhiteboard", "dataformfield_poodll");
+		$recorderoptions[DF_REPLYSNAPSHOT] = get_string("replysnapshot", "dataformfield_poodll");
 		$mform->addElement('select', DF_FIELD_RECTYPE, get_string("recordertype", "dataformfield_poodll"), $recorderoptions);
 
 
@@ -101,12 +84,18 @@ class dataformfield_poodll_form extends dataformfield_form {
 		}else{
 			$contextid = 0;
 		}
+		//disable this for now, since it doesn't work, till we can get a file area to use. 
+		/*
 		file_prepare_draft_area($draftitemid, $contextid, DF_POODLL_CONFIG_COMPONENT, DF_POODLL_CONFIG_FILEAREA, 
 		$itemid,
 		array('subdirs' => 0, 'maxbytes' => 0, 'maxfiles' => 1));
 		$mform->addElement('filemanager', DF_FIELD_BACKIMAGE, get_string('backimage', 'dataformfield_poodll'), null,array('subdirs' => 0, 'maxbytes' => 0, 'maxfiles' => 1));
 		$mform->setDefault(DF_FIELD_BACKIMAGE, $backimage);
 		$mform->disabledIf(DF_FIELD_BACKIMAGE, DF_FIELD_RECTYPE, 'ne', DF_REPLYWHITEBOARD );
+		*/
+		//url of back image (since uploading don't work here)
+		$mform->addElement('text', DF_POODLLFIELD_BACKIMAGE_URL,get_string('backimageurl', 'dataformfield_poodll'));
+		$mform->setType(DF_POODLLFIELD_BACKIMAGE_URL, PARAM_TEXT);
 
 		$boardsizes = array(
 			'320x320' => '320x320',
@@ -121,13 +110,24 @@ class dataformfield_poodll_form extends dataformfield_form {
 		$mform->setDefault(DF_FIELD_BOARDSIZE, $boardsize);
 		$mform->disabledIf(DF_FIELD_BOARDSIZE, DF_FIELD_RECTYPE, 'ne', DF_REPLYWHITEBOARD );
 
-		 parent::field_definition();
+		// Max video/pic dimensions
+        $grp = array();
+        $grp[] = &$mform->createElement('text', DF_POODLLFIELD_WIDTH, null, array('size' => '4', 'style' => 'width:inherit;'));
+        $grp[] = &$mform->createElement('text', DF_POODLLFIELD_HEIGHT, null, array('size' => '4', 'style' => 'width:inherit;'));
+        $mform->addGroup($grp, 'maxpicdim', get_string('maxdimensions', 'dataformfield_picture'), ' x ', false);
+        $mform->setType(DF_POODLLFIELD_WIDTH, PARAM_INT);
+        $mform->setType(DF_POODLLFIELD_HEIGHT, PARAM_INT);
+        $mform->addGroupRule('maxpicdim', array(DF_POODLLFIELD_WIDTH => array(array(null, 'numeric', null, 'client'))));
+        $mform->addGroupRule('maxpicdim', array(DF_POODLLFIELD_HEIGHT => array(array(null, 'numeric', null, 'client'))));
+        $mform->setDefault(DF_POODLLFIELD_WIDTH, 0);
+        $mform->setDefault(DF_POODLLFIELD_HEIGHT, 0);
 	
 	}
 
     /**
      *
      */
+	 
     function filetypes_definition() {
 
 		$mform =& $this->_form;

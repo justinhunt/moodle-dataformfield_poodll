@@ -21,7 +21,7 @@
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-require_once("$CFG->dirroot/mod/dataform/field/file/field_class.php");
+require_once("$CFG->dirroot/mod/dataform/field/file/classes/file.php");
 
 define('DF_POODLL_FILEAREA', 'content');
 define('DF_POODLL_COMPONENT', 'mod_dataform');
@@ -30,6 +30,7 @@ define('DF_POODLL_CONFIG_FILEAREA', 'view');
 define('DF_POODLL_WB_FILEAREA', 'content');
 
 define('DF_FILENAMECONTROL','_filename');
+define('DF_VECTORCONTROL','_vectordata');
 define('DF_DRAFTIDCONTROL','filemanager');
 
 define('DF_FIELD_RECTYPE', 'param1');
@@ -37,21 +38,37 @@ define('DF_FIELD_TIMELIMIT', 'param2');
 define('DF_FIELD_BACKIMAGE', 'param3');
 define('DF_FIELD_BOARDSIZE', 'param4');
 define('DF_FIELD_DRAFTID', 'param5');
+define('DF_POODLLFIELD_HEIGHT','param6');
+define('DF_POODLLFIELD_WIDTH','param7');
+define('DF_POODLLFIELD_BACKIMAGE_URL','param9');
 
+define('DF_REPLYMP3VOICE',0);
+define('DF_REPLYVOICE',1);
+define('DF_REPLYVIDEO',2);
+define('DF_REPLYWHITEBOARD',3);
+define('DF_REPLYSNAPSHOT',4);
 
-class dataformfield_poodll extends dataformfield_file {
+class dataformfield_poodll_poodll extends dataformfield_file_file {
 
     public $type = 'poodll';
+	
+	    /**
+     *
+     */
+    public function content_names() {
+        return array('',DF_DRAFTIDCONTROL,DF_FILENAMECONTROL,DF_VECTORCONTROL);
+    }
 	
 	 /**
      *
      */
-    public function update_content($entry, array $values = null) {
+    public function update_content($entry, array $values = null,$savenew=false) {
         global $DB, $USER;
-//print_r($entry);
-//print_r($values);
+		
+		//see textarea for how to get vectordata
+
         $entryid =  $entry->id;
-        $fieldid = $this->field->id;
+        $fieldid = $this->id;
 		$fieldname = "field_{$fieldid}_{$entryid}";
 
 		$filemanager = $alttext = $delete = $editor = null;
@@ -62,7 +79,7 @@ class dataformfield_poodll extends dataformfield_file {
                 }
             }
         }
-     
+//print_r($values);
         // store uploaded files
         $draftarea =$filemanager; // isset($entry->{$fieldname . DF_DRAFTIDCONTROL}) ? $entry->{$fieldname . DF_DRAFTIDCONTROL} : null;
         $usercontext = context_user::instance($USER->id);
@@ -75,8 +92,13 @@ class dataformfield_poodll extends dataformfield_file {
             $rec = new object;
             $rec->fieldid = $fieldid;
             $rec->entryid = $entryid;
-            $rec->content = 1;
-            $rec->content1 = $alttext;
+           if(array_key_exists(DF_FILENAMECONTROL,$values)){
+				$rec->content = $values[DF_FILENAMECONTROL];		
+			}
+		 
+			if(array_key_exists(DF_VECTORCONTROL,$values)){
+				$rec->content1 = $values[DF_VECTORCONTROL];	
+			}
 
             if (!empty($contentid)) {
                 $rec->id = $contentid;
@@ -106,26 +128,30 @@ class dataformfield_poodll extends dataformfield_file {
 	public function insert_field($fromform = null) {
 		$fieldid = parent::insert_field($fromform);
 		if(!$fieldid){return;}
-		
+		//Disable this for now, since it doesn't work. We need a file area.
+		/*
 		$options = array();
 		$contextid = $this->df->context->id;
 		$contentid = $fieldid;
 		$filemanager = $this->field->{DF_FIELD_BACKIMAGE};
 		$filearea = DF_POODLL_CONFIG_FILEAREA;//$this->filearea();
 		file_save_draft_area_files($filemanager, $contextid, DF_POODLL_COMPONENT, $filearea, $contentid, $options);
-		
+		*/
 	}
 	
 	public function update_field($fromform = null) {
 		$fieldupdated = parent::update_field($fromform);
 		if(!$fieldupdated){return;}
 		
+		//disable this for since it doesn't work. We need a file area.
+		/*
 		$options = array();
 		$contextid = $this->df->context->id;
 		$contentid = $this->field->id;
 		$filemanager =  $this->field->{DF_FIELD_BACKIMAGE};
 		$filearea =  DF_POODLL_CONFIG_FILEAREA;//$this->filearea();
 		file_save_draft_area_files($filemanager, $contextid, DF_POODLL_COMPONENT, $filearea, $contentid, $options);
+		*/
 	}
 	
  }
